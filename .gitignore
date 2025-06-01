@@ -44,3 +44,4 @@ terraform.rc
 .exclude
 
 _backend.tf
+tmp_*
