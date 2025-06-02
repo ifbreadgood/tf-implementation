@@ -23,3 +23,13 @@ resource "aws_organizations_organization" "org" {
   ]
   feature_set = "ALL"
 }
+
+locals {
+  org_accounts = {
+    for account in [
+      aws_organizations_account.identity,
+      aws_organizations_account.workload_test,
+      aws_organizations_account.infrastructure_test
+    ] : account.name => account.id
+  }
+}

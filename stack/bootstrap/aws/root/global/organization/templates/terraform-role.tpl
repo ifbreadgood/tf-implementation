@@ -1,5 +1,5 @@
 provider "aws" {
-  alias = "gh_${account}"
+  alias = "account_${account}"
   region = "us-east-2"
   assume_role {
     role_arn = "arn:aws:iam::${account}:role/OrganizationAccountAccessRole"
@@ -9,7 +9,7 @@ provider "aws" {
 resource "aws_iam_openid_connect_provider" "gha_${account}" {
   url = "https://token.actions.githubusercontent.com"
   client_id_list = ["sts.amazonaws.com",]
-  provider = aws.gh_${account}
+  provider = aws.account_${account}
 }
 
 resource "aws_iam_role" "gha_${account}" {
@@ -32,11 +32,11 @@ resource "aws_iam_role" "gha_${account}" {
       }
     ]
   })
-  provider = aws.gh_${account}
+  provider = aws.account_${account}
 }
 
 resource "aws_iam_role_policy_attachment" "gha_${account}" {
   policy_arn = "arn:aws:iam::aws:policy/PowerUserAccess"
   role       = aws_iam_role.gha_${account}.name
-  provider = aws.gh_${account}
+  provider = aws.account_${account}
 }
