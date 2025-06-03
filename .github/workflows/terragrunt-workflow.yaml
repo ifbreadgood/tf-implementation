@@ -1,0 +1,151 @@
+name: Terragrunt Workflow
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - stack
+  workflow_dispatch:
+
+env:
+  terraform_version: 1.12.1
+  terragrunt_version: 0.80.4
+
+jobs:
+  get-terraform-changed-dirs:
+    runs-on: ubuntu-latest
+    outputs:
+      dirs: ${{ steps.set-matrix.outputs.dirs }}
+      found: ${{ steps.set-matrix.outputs.found }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '2'
+      - name: Get changed terragrunt directories
+        id: set-matrix
+        run: |
+          changed_files=`git diff --name-only HEAD^`
+          changed_dirs=`for file in $changed_files; do dirname "$file"; done | sort -u`
+          
+          target_dirs=()
+          target_files="terragrunt.hcl"
+          
+          for dir in $changed_dirs; do
+            [ ! -d "$dir" ] && continue
+          
+            if ls "$dir"/terragrunt.hcl >/dev/null 2>&1; then
+              target_dirs+=($dir)
+            fi
+          done
+          
+          if [ ${#target_dirs[@]} -gt 0 ]; then
+            JSON_ARRAY=$(printf '"%s",' "${target_dirs[@]}" | sed 's/,$//')
+            echo "dirs=[$JSON_ARRAY]" >> $GITHUB_OUTPUT
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "dirs=[]" >> $GITHUB_OUTPUT
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Print the directories found for debugging
+          echo "Directories with changes:"
+          for dir in "${target_dirs[@]}"; do
+            echo "- $dir"
+          done
+
+  apply-terraform:
+    needs: get-terraform-changed-dirs
+    if: needs.get-terraform-changed-dirs.outputs.found == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        directory: ${{ fromJson(needs.get-terraform-changed-dirs.outputs.dirs) }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get AWS account
+        id: aws-account
+        env:
+          changed_dir: ${{ matrix.directory }}
+        run: |
+          account=$(./get_account_number.sh $changed_dir)
+          echo "account=$account"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ steps.aws-account.outputs.account }}:role/github-actions
+          aws-region: "us-east-2"
+
+#      - uses: terraform-linters/setup-tflint@v4
+#        name: Setup TFLint
+#
+#      - name: Run tflint
+#        run: tflint --recursive ${{ matrix.directory }} --config $(pwd)/.tflint.hcl
+#
+#      - name: Run checkov
+#        uses: bridgecrewio/checkov-action@v12
+#        with:
+#          output_format: cli
+#          output_file_path: console
+#          directory: ${{ matrix.directory }}
+#          quiet: true
+#          download_external_modules: true
+#
+#      - name: Run Trivy vulnerability scanner
+#        uses: aquasecurity/trivy-action@0.30.0
+#        with:
+#          scan-type: 'config'
+#          trivyignores: '.trivyignore.yaml'
+#
+#      - name: Validate terragrunt
+#        uses: gruntwork-io/terragrunt-action@v2
+#        with:
+#          tf_version: ${{ env.terraform_version }}
+#          tg_version: ${{ env.terragrunt_version }}
+#          tg_dir: ${{ matrix.directory }}
+#          tg_command: "validate"
+#        env:
+#          TF_VAR_GITHUB_ORGANIZATION: ${{ github.repository_owner }}
+#          TF_VAR_APP_ID: ${{ secrets.TF_VAR_APP_ID }}
+#          TF_VAR_APP_INSTALLATION_ID: ${{ secrets.TF_VAR_APP_INSTALLATION_ID }}
+#          TF_VAR_APP_PEM_FILE: ${{ secrets.TF_VAR_APP_PEM_FILE }}
+#
+#      - name: Terragrunt plan
+##        if: inputs.plan
+#        uses: gruntwork-io/terragrunt-action@v2
+#        with:
+#          tf_version: ${{ env.terraform_version }}
+#          tg_version: ${{ env.terragrunt_version }}
+#          tg_dir: ${{ matrix.directory }}
+#          tg_command: "plan"
+#          tg_comment: '1'
+#        env:
+#          TF_VAR_GITHUB_ORGANIZATION: ${{ github.repository_owner }}
+#          TF_VAR_APP_ID: ${{ secrets.TF_VAR_APP_ID }}
+#          TF_VAR_APP_INSTALLATION_ID: ${{ secrets.TF_VAR_APP_INSTALLATION_ID }}
+#          TF_VAR_APP_PEM_FILE: ${{ secrets.TF_VAR_APP_PEM_FILE }}
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#
+#      - name: Terragrunt apply
+#        if: inputs.file_type == 'terragrunt' && inputs.apply
+#        uses: gruntwork-io/terragrunt-action@v2
+#        with:
+#          tf_version: ${{ env.terraform_version }}
+#          tg_version: ${{ env.terragrunt_version }}
+#          tg_dir: ${{ matrix.directory }}
+#          tg_command: "apply"
+#        env:
+#          TF_VAR_GITHUB_ORGANIZATION: ${{ github.repository_owner }}
+#          TF_VAR_APP_ID: ${{ secrets.TF_VAR_APP_ID }}
+#          TF_VAR_APP_INSTALLATION_ID: ${{ secrets.TF_VAR_APP_INSTALLATION_ID }}
+#          TF_VAR_APP_PEM_FILE: ${{ secrets.TF_VAR_APP_PEM_FILE }}
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
