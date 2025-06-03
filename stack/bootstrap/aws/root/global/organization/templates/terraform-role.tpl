@@ -24,9 +24,11 @@ resource "aws_iam_role" "gha_${account}" {
         },
         "Action" : "sts:AssumeRoleWithWebIdentity",
         "Condition" : {
+          "StringLike" : {
+            "token.actions.githubusercontent.com:sub" : "repo:${gh_account}/tf-implementation:*"
+          },
           "StringEquals" : {
             "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com",
-            "token.actions.githubusercontent.com:sub" : "repo:${gh_account}/tf-implementation:*"
           }
         }
       }
