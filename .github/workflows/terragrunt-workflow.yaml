@@ -88,55 +88,55 @@ jobs:
           role-to-assume: arn:aws:iam::${{ steps.aws-account.outputs.account }}:role/github-actions
           aws-region: "us-east-2"
 
-#      - uses: terraform-linters/setup-tflint@v4
-#        name: Setup TFLint
-#
-#      - name: Run tflint
-#        run: tflint --recursive ${{ matrix.directory }} --config $(pwd)/.tflint.hcl
-#
-#      - name: Run checkov
-#        uses: bridgecrewio/checkov-action@v12
-#        with:
-#          output_format: cli
-#          output_file_path: console
-#          directory: ${{ matrix.directory }}
-#          quiet: true
-#          download_external_modules: true
-#
-#      - name: Run Trivy vulnerability scanner
-#        uses: aquasecurity/trivy-action@0.30.0
-#        with:
-#          scan-type: 'config'
-#          trivyignores: '.trivyignore.yaml'
-#
-#      - name: Validate terragrunt
-#        uses: gruntwork-io/terragrunt-action@v2
-#        with:
-#          tf_version: ${{ env.terraform_version }}
-#          tg_version: ${{ env.terragrunt_version }}
-#          tg_dir: ${{ matrix.directory }}
-#          tg_command: "validate"
-#        env:
-#          TF_VAR_GITHUB_ORGANIZATION: ${{ github.repository_owner }}
-#          TF_VAR_APP_ID: ${{ secrets.TF_VAR_APP_ID }}
-#          TF_VAR_APP_INSTALLATION_ID: ${{ secrets.TF_VAR_APP_INSTALLATION_ID }}
-#          TF_VAR_APP_PEM_FILE: ${{ secrets.TF_VAR_APP_PEM_FILE }}
-#
-#      - name: Terragrunt plan
-##        if: inputs.plan
-#        uses: gruntwork-io/terragrunt-action@v2
-#        with:
-#          tf_version: ${{ env.terraform_version }}
-#          tg_version: ${{ env.terragrunt_version }}
-#          tg_dir: ${{ matrix.directory }}
-#          tg_command: "plan"
-#          tg_comment: '1'
-#        env:
-#          TF_VAR_GITHUB_ORGANIZATION: ${{ github.repository_owner }}
-#          TF_VAR_APP_ID: ${{ secrets.TF_VAR_APP_ID }}
-#          TF_VAR_APP_INSTALLATION_ID: ${{ secrets.TF_VAR_APP_INSTALLATION_ID }}
-#          TF_VAR_APP_PEM_FILE: ${{ secrets.TF_VAR_APP_PEM_FILE }}
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: terraform-linters/setup-tflint@v4
+        name: Setup TFLint
+
+      - name: Run tflint
+        run: tflint --recursive ${{ matrix.directory }} --config $(pwd)/.tflint.hcl
+
+      - name: Run checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          output_format: cli
+          output_file_path: console
+          directory: ${{ matrix.directory }}
+          quiet: true
+          download_external_modules: true
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          scan-type: 'config'
+          trivyignores: '.trivyignore.yaml'
+
+      - name: Validate terragrunt
+        uses: gruntwork-io/terragrunt-action@v2
+        with:
+          tf_version: ${{ env.terraform_version }}
+          tg_version: ${{ env.terragrunt_version }}
+          tg_dir: ${{ matrix.directory }}
+          tg_command: "validate"
+        env:
+          TF_VAR_GITHUB_ORGANIZATION: ${{ github.repository_owner }}
+          TF_VAR_APP_ID: ${{ secrets.TF_VAR_APP_ID }}
+          TF_VAR_APP_INSTALLATION_ID: ${{ secrets.TF_VAR_APP_INSTALLATION_ID }}
+          TF_VAR_APP_PEM_FILE: ${{ secrets.TF_VAR_APP_PEM_FILE }}
+
+      - name: Terragrunt plan
+#        if: inputs.plan
+        uses: gruntwork-io/terragrunt-action@v2
+        with:
+          tf_version: ${{ env.terraform_version }}
+          tg_version: ${{ env.terragrunt_version }}
+          tg_dir: ${{ matrix.directory }}
+          tg_command: "plan"
+          tg_comment: '1'
+        env:
+          TF_VAR_GITHUB_ORGANIZATION: ${{ github.repository_owner }}
+          TF_VAR_APP_ID: ${{ secrets.TF_VAR_APP_ID }}
+          TF_VAR_APP_INSTALLATION_ID: ${{ secrets.TF_VAR_APP_INSTALLATION_ID }}
+          TF_VAR_APP_PEM_FILE: ${{ secrets.TF_VAR_APP_PEM_FILE }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #
 #      - name: Terragrunt apply
 #        if: inputs.file_type == 'terragrunt' && inputs.apply
