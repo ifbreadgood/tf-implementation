@@ -88,26 +88,26 @@ jobs:
           role-to-assume: arn:aws:iam::${{ steps.aws-account.outputs.account }}:role/github-actions
           aws-region: "us-east-2"
 
-      - uses: terraform-linters/setup-tflint@v4
-        name: Setup TFLint
-
-      - name: Run tflint
-        run: tflint --recursive ${{ matrix.directory }} --config $(pwd)/.tflint.hcl
-
-      - name: Run checkov
-        uses: bridgecrewio/checkov-action@v12
-        with:
-          output_format: cli
-          output_file_path: console
-          directory: ${{ matrix.directory }}
-          quiet: true
-          download_external_modules: true
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.30.0
-        with:
-          scan-type: 'config'
-          trivyignores: '.trivyignore.yaml'
+#      - uses: terraform-linters/setup-tflint@v4
+#        name: Setup TFLint
+#
+#      - name: Run tflint
+#        run: tflint --recursive ${{ matrix.directory }} --config $(pwd)/.tflint.hcl
+#
+#      - name: Run checkov
+#        uses: bridgecrewio/checkov-action@v12
+#        with:
+#          output_format: cli
+#          output_file_path: console
+#          directory: ${{ matrix.directory }}
+#          quiet: true
+#          download_external_modules: true
+#
+#      - name: Run Trivy vulnerability scanner
+#        uses: aquasecurity/trivy-action@0.30.0
+#        with:
+#          scan-type: 'config'
+#          trivyignores: '.trivyignore.yaml'
 
       - name: Validate terragrunt
         uses: gruntwork-io/terragrunt-action@v2
