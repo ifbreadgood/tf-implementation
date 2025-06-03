@@ -3,6 +3,13 @@ resource "aws_organizations_organizational_unit" "infrastructure" {
   parent_id = aws_organizations_organization.org.roots[0].id
 }
 
+resource "aws_organizations_account" "infrastructure_shared" {
+  email = "ifbread+infrastructure-shared@pm.me"
+  name  = "shared"
+  close_on_deletion = true
+  parent_id = aws_organizations_organizational_unit.infrastructure.id
+}
+
 resource "aws_organizations_organizational_unit" "infrastructure_prod" {
   name      = "prod"
   parent_id = aws_organizations_organizational_unit.infrastructure.id
@@ -12,7 +19,7 @@ resource "aws_organizations_account" "identity" {
   email = "ifbread+identity@pm.me"
   name  = "identity"
   close_on_deletion = true
-  parent_id = aws_organizations_organizational_unit.infrastructure_prod.id
+  parent_id = aws_organizations_organizational_unit.infrastructure.id
 }
 
 resource "aws_organizations_delegated_administrator" "sso" {

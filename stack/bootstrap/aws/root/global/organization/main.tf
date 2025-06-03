@@ -29,7 +29,8 @@ locals {
     for account in [
       aws_organizations_account.identity,
       aws_organizations_account.workload_test,
-      aws_organizations_account.infrastructure_test
+      aws_organizations_account.infrastructure_test,
+      aws_organizations_account.infrastructure_shared
     ] : account.name => account.id
   }
 }
