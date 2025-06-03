@@ -5,6 +5,13 @@ locals {
   platform = local.path.platform
   environment = local.path.environment
   resource = local.path.resource
+  default_tags = {
+    location = local.location
+    project = local.project
+    platform = local.platform
+    environment = local.environment
+    resource = local.resource
+  }
 }
 
 generate "backend" {
