@@ -80,7 +80,7 @@ jobs:
           pwd
           echo $changed_dir
           account=$(./get_account_number.sh $changed_dir)
-          echo "account=$account"
+          echo "account=$account" >> $GITHUB_OUTPUT
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
