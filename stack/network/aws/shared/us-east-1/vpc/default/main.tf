@@ -31,7 +31,7 @@ module "vpc" {
   name = "default"
   cidr = local.base_subnet
 
-  azs             = ["us-east-2a", "us-east-2b", "us-east-2c"]
+  azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
   public_subnets  = local.public_subnets
   private_subnets = local.private_subnets
 
