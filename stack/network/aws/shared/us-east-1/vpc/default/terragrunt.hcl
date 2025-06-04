@@ -8,5 +8,8 @@ inputs = {
 }
 
 terraform {
-  arguments = ["-destroy"]
+  extra_arguments "destroy" {
+    commands = ["apply"]
+    arguments = ["-destroy"]
+  }
 }
