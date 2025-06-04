@@ -19,7 +19,7 @@ variable "tags" {
 }
 
 locals {
-  base_subnet = "10.0.0.0/16"
+  base_subnet = "10.1.0.0/16"
   public_subnets = cidrsubnets(cidrsubnet(local.base_subnet, 1, 0), 7, 7, 7)
   private_subnets = cidrsubnets(cidrsubnet(local.base_subnet, 1, 1), 7, 7, 7)
 }
@@ -28,7 +28,7 @@ module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
   version = "5.21.0"
 
-  name = "my-vpc"
+  name = "default"
   cidr = local.base_subnet
 
   azs             = ["us-east-2a", "us-east-2b", "us-east-2c"]

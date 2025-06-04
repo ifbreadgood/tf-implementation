@@ -76,17 +76,13 @@ jobs:
         env:
           changed_dir: ${{ matrix.directory }}
         run: |
-          ls -l
-          pwd
-          echo $changed_dir
-          account=$(./get_account_number.sh $changed_dir)
-          echo "account=$account" >> $GITHUB_OUTPUT
+          ./get_aws_account.sh >> $GITHUB_OUTPUT
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ steps.aws-account.outputs.account }}:role/github-actions
-          aws-region: "us-east-2"
+          aws-region: ${{ steps.aws-account.outputs.region }}
 
 #      - uses: terraform-linters/setup-tflint@v4
 #        name: Setup TFLint
