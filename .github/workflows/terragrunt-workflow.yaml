@@ -76,7 +76,7 @@ jobs:
         env:
           changed_dir: ${{ matrix.directory }}
         run: |
-          ./get_aws_account.sh >> $GITHUB_OUTPUT
+          ./get_aws_account.sh $changed_dir >> $GITHUB_OUTPUT
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4

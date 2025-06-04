@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "~> 5.99.0"
     }
   }
@@ -19,13 +19,13 @@ variable "tags" {
 }
 
 locals {
-  base_subnet = "10.1.0.0/16"
-  public_subnets = cidrsubnets(cidrsubnet(local.base_subnet, 1, 0), 7, 7, 7)
+  base_subnet     = "10.1.0.0/16"
+  public_subnets  = cidrsubnets(cidrsubnet(local.base_subnet, 1, 0), 7, 7, 7)
   private_subnets = cidrsubnets(cidrsubnet(local.base_subnet, 1, 1), 7, 7, 7)
 }
 
 module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-modules/vpc/aws"
   version = "5.21.0"
 
   name = "default"
@@ -38,6 +38,6 @@ module "vpc" {
   enable_nat_gateway = false
   enable_vpn_gateway = false
 
-  create_database_subnet_group = true
+  create_database_subnet_group       = true
   create_database_subnet_route_table = true
 }
