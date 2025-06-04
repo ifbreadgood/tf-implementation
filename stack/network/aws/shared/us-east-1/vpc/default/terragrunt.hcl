@@ -6,3 +6,7 @@ include "backend" {
 inputs = {
   tags = jsonencode(include.backend.locals.default_tags)
 }
+
+terraform {
+  arguments = ["-destroy"]
+}
